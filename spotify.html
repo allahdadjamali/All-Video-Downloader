@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spotify Downloader</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{background:#0b0f1a;color:#fff;min-height:100vh}
+
+/* Top Bar */
+.topbar{
+    padding:15px 20px;
+    background:#11162a;
+    border-bottom:1px solid #1DB954;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.back-btn{
+    width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    background:#0f1530;
+    color:#1DB954;
+    text-decoration:none;
+    font-size:18px;
+}
+
+.title-text{
+    font-size:20px;
+    font-weight:600;
+    color:#1DB954;
+}
+
+/* Main */
+.container{max-width:900px;margin:auto;padding:20px}
+
+.box{
+    background:#11162a;
+    padding:20px;
+    border-radius:14px;
+    margin-bottom:20px; /* INPUT BOX KO BHI NICHE KAR DIYA */
+}
+
+.box h2{
+    font-size:18px;
+    margin-bottom:15px;
+    color:#1DB954;
+}
+
+.input{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    outline:none;
+    font-size:14px;
+    background:#0f1530;
+    color:#fff;
+}
+
+.btn{
+    margin-top:12px;
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#1DB954;
+    color:#fff;
+    font-size:15px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+}
+
+.btn:disabled{
+    background:#555;
+    cursor:not-allowed;
+}
+
+.result{
+    margin-top: 20px; /* YEH RESULT CONTAINER KO NICHE KAREGA */
+}
+
+/* Track Styling */
+.track{
+    background:#0f1530;
+    padding:15px;
+    border-radius:12px;
+    margin-top:10px;
+}
+
+.track img{
+    width:100%;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.track h4{
+    margin-bottom:15px;
+    font-size:16px;
+}
+
+/* Download Links */
+.track a{
+    display:block;
+    background:#1DB954;
+    color:#fff;
+    text-decoration:none;
+    padding:12px;
+    border-radius:8px;
+    margin-bottom:10px;
+    text-align:center;
+    font-weight:600;
+    transition:all 0.3s ease;
+}
+
+.track a:hover{
+    background:#1ed760;
+}
+
+.track a i{
+    margin-right:8px;
+}
+
+/* Loading */
+.loading{
+    text-align:center;
+    padding:20px;
+    display:none;
+}
+
+.spinner{
+    border:3px solid rgba(29, 185, 84, 0.2);
+    border-radius:50%;
+    border-top:3px solid #1DB954;
+    width:40px;
+    height:40px;
+    animation:spin 1s linear infinite;
+    margin:0 auto 15px;
+}
+
+@keyframes spin{
+    0%{transform:rotate(0deg)}
+    100%{transform:rotate(360deg)}
+}
+
+/* Error */
+.error{
+    background:#dc354520;
+    color:#ff6b6b;
+    padding:12px;
+    border-radius:10px;
+    margin-top:15px;
+    border-left:4px solid #dc3545;
+    display:none;
+}
+
+.error i{
+    margin-right:8px;
+}
+
+.footer{
+    text-align:center;
+    padding:18px;
+    font-size:12px;
+    opacity:0.6;
+    margin-top: 40px; /* FOOTER KO BHI NICHE KAR DIYA */
+}
+
+/* Empty State */
+.empty{
+    text-align:center;
+    padding:40px 20px;
+    color:#888;
+}
+
+.empty i{
+    font-size:48px;
+    margin-bottom:15px;
+    color:#1DB95440;
+}
+
+.empty h3{
+    color:#aaa;
+    margin-bottom:10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+    <a href="index.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <div class="title-text"><i class="fab fa-spotify"></i> Spotify Downloader</div>
+</div>
+
+<!-- Content -->
+<div class="container">
+    <div class="box">
+        <h2><i class="fas fa-link"></i> Paste Spotify Track URL</h2>
+        <input class="input" id="url" placeholder="https://open.spotify.com/track/506bkQDwzIRnUTvoXv830S" />
+        <button class="btn" onclick="fetchTrack()" id="fetchBtn">
+            <i class="fas fa-download"></i> Get Track
+        </button>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Fetching track information...</p>
+        </div>
+
+        <!-- Error -->
+        <div class="error" id="error"></div>
+    </div>
+
+    <!-- Result Area - Yeh ab neeche aayega -->
+    <div class="result" id="result">
+        <div class="box empty">
+            <i class="fas fa-music"></i>
+            <h3>No Track Loaded</h3>
+            <p>Enter a Spotify URL to download music</p>
+        </div>
+    </div>
+</div>
+
+<div class="footer">All right reserved © by Tech AD</div>
+
+<!-- Native Ad -->
+<div style="max-width:900px;margin:20px auto;text-align:center;">
+<script async data-cfasync="false" src="https://pl28379782.effectivegatecpm.com/300138f18b9ecba409578858202fe959/invoke.js"></script>
+<div id="container-300138f18b9ecba409578858202fe959"></div>
+</div>
+
+<script>
+async function fetchTrack(){
+    const url = document.getElementById('url').value;
+    const resultDiv = document.getElementById('result');
+    const loadingDiv = document.getElementById('loading');
+    const errorDiv = document.getElementById('error');
+    const fetchBtn = document.getElementById('fetchBtn');
+
+    // Reset
+    errorDiv.style.display = 'none';
+    
+    // Validate URL
+    if(!url || !url.includes('open.spotify.com/track/')){
+        showError('Please enter a valid Spotify track URL');
+        return;
+    }
+
+    // Show loading
+    loadingDiv.style.display = 'block';
+    fetchBtn.disabled = true;
+    fetchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+    try {
+        // Call API (using the provided endpoint directly)
+        const apiUrl = `https://legendxdata.site/alll.php?url=${encodeURIComponent(url)}`;
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+
+        if(data.statusCode !== 200){
+            throw new Error('Failed to fetch track');
+        }
+
+        // Parse track info
+        const trackInfo = parseTrackInfo(data.title);
+        
+        // Display result
+        resultDiv.innerHTML = `
+            <div class="track">
+                <img src="${data.thumbnail}" alt="${trackInfo.trackName}" 
+                     onerror="this.src='https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'">
+                <h4>${trackInfo.trackName}</h4>
+                <p style="color:#1DB954;margin-bottom:15px;">${trackInfo.artist} • ${data.duration}</p>
+                ${data.medias.map(media => `
+                    <a href="${media.url}" download>
+                        <i class="fas fa-download"></i> Download ${media.quality} ${media.extension.toUpperCase()}
+                    </a>
+                `).join('')}
+            </div>
+        `;
+
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Failed to fetch track. Please try again.');
+    } finally {
+        // Hide loading
+        loadingDiv.style.display = 'none';
+        fetchBtn.disabled = false;
+        fetchBtn.innerHTML = '<i class="fas fa-download"></i> Get Track';
+    }
+}
+
+function parseTrackInfo(title){
+    // Simple parsing: split by comma
+    const parts = title.split(',');
+    const trackName = parts[0]?.trim() || title;
+    const artist = parts[1]?.trim() || 'Unknown Artist';
+    
+    return { trackName, artist };
+}
+
+function showError(message){
+    const errorDiv = document.getElementById('error');
+    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+    errorDiv.style.display = 'block';
+}
+
+// Allow Enter key to trigger fetch
+document.getElementById('url').addEventListener('keypress', function(e){
+    if(e.key === 'Enter'){
+        fetchTrack();
+    }
+});
+</script>
+
+</body>
+</html>nc data-cfasync="false" src="https://pl28379782.effectivegatecpm.com/300138f18b9ecba409578858202fe959/invoke.js"></script>
+<div id="container-300138f18b9ecba409578858202fe959"></div>
+</div>
+
+<script>
+async function fetchTrack(){
+    const url = document.getElementById('url').value;
+    const resultDiv = document.getElementById('result');
+    const loadingDiv = document.getElementById('loading');
+    const errorDiv = document.getElementById('error');
+    const fetchBtn = document.getElementById('fetchBtn');
+
+    // Reset
+    errorDiv.style.display = 'none';
+    resultDiv.innerHTML = '';
+    
+    // Validate URL
+    if(!url || !url.includes('open.spotify.com/track/')){
+        showError('Please enter a valid Spotify track URL');
+        return;
+    }
+
+    // Show loading
+    loadingDiv.style.display = 'block';
+    fetchBtn.disabled = true;
+    fetchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+    try {
+        // Call our Vercel API endpoint
+        const res = await fetch(`/api/spotify?url=${encodeURIComponent(url)}`);
+        const data = await res.json();
+
+        if(data.statusCode !== 200){
+            throw new Error(data.error || 'Failed to fetch track');
+        }
+
+        // Parse track info
+        const trackInfo = parseTrackInfo(data.title);
+        
+        // Display result
+        resultDiv.innerHTML = `
+            <div class="box">
+                <div class="track-info">
+                    <div class="track-header">
+                        <img src="${data.thumbnail}" alt="${trackInfo.trackName}" class="track-thumb" 
+                             onerror="this.src='https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'">
+                        <div class="track-text">
+                            <h3>${trackInfo.trackName}</h3>
+                            <p>${trackInfo.artist}</p>
+                            <div class="track-duration">
+                                <i class="far fa-clock"></i> ${data.duration}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="download-options">
+                    <h3><i class="fas fa-download"></i> Download Options</h3>
+                    ${data.medias.map(media => `
+                        <div class="download-item">
+                            <div class="quality-info">
+                                <span class="quality-badge">${media.quality}</span>
+                                <span class="format-badge">${media.extension.toUpperCase()}</span>
+                                <span>${media.type}</span>
+                            </div>
+                            <a href="${media.url}" class="download-btn" download>
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+    } catch (error) {
+        console.error('Error:', error);
+        showError(error.message || 'Failed to fetch track. Please try again.');
+    } finally {
+        // Hide loading
+        loadingDiv.style.display = 'none';
+        fetchBtn.disabled = false;
+        fetchBtn.innerHTML = '<i class="fas fa-download"></i> Get Track';
+    }
+}
+
+function parseTrackInfo(title){
+    // Simple parsing: split by comma
+    const parts = title.split(',');
+    const trackName = parts[0]?.trim() || title;
+    const artist = parts[1]?.trim() || 'Unknown Artist';
+    
+    return { trackName, artist };
+}
+
+function showError(message){
+    const errorDiv = document.getElementById('error');
+    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+    errorDiv.style.display = 'block';
+    
+    // Scroll to error
+    errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Allow Enter key to trigger fetch
+document.getElementById('url').addEventListener('keypress', function(e){
+    if(e.key === 'Enter'){
+        fetchTrack();
+    }
+});
+</script>
+
+</body>
+</html>
